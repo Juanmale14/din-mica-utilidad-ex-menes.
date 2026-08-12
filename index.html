@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DINÁMICA: ¿PARA QUÉ SIRVEN LOS EXÁMENES?</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS para exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary-red: #c53030;
+            --primary-dark: #9b2c2c;
+            --primary-pastel: #fff5f5;
+            --border-red: #feb2b2;
+            --bg-main: #faf5f5;
+            --bg-card: #ffffff;
+            --text-main: #0f172a; /* Alto contraste negro/carbón */
+            --text-muted: #334155; /* Gris oscuro muy legible */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --radius-main: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Encabezado Principal */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-dark));
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .app-header h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        /* Navegación por Pestañas */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            background-color: #ffffff;
+            border-bottom: 3px solid var(--border-red);
+            gap: 12px;
+            padding: 12px 10px 0 10px;
+        }
+
+        .tab-btn {
+            padding: 12px 28px;
+            border: none;
+            background: #f1f5f9;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #cbd5e1;
+            border-bottom: none;
+        }
+
+        .tab-btn:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-pastel);
+            color: var(--primary-dark);
+            border-top: 4px solid var(--primary-red);
+            border-left: 2px solid var(--border-red);
+            border-right: 2px solid var(--border-red);
+            font-weight: 800;
+        }
+
+        /* Contenedor Principal */
+        .main-container {
+            max-width: 1400px;
+            width: 95%;
+            margin: 24px auto;
+            flex: 1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Barra de herramientas */
+        .toolbar {
+            background: white;
+            padding: 18px;
+            border-radius: var(--radius-main);
+            border: 2px solid var(--border-red);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.1s ease, background 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #334155;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-pastel);
+        }
+
+        .btn-info {
+            background-color: #0284c7;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #0369a1;
+        }
+
+        .btn-success {
+            background-color: #15803d;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #166534;
+        }
+
+        .select-control {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e1;
+            font-weight: 700;
+            font-size: 0.95rem;
+            background: white;
+            color: #0f172a;
+        }
+
+        .counter-badge {
+            background-color: var(--primary-pastel);
+            color: var(--primary-dark);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1rem;
+            border: 2px solid var(--border-red);
+        }
+
+        /* Pizarra Digital en Columnas */
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .board-column {
+            background: #ffffff;
+            border-radius: var(--radius-main);
+            border: 2px solid #cbd5e1;
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .column-header {
+            font-weight: 800;
+            color: var(--primary-dark);
+            border-bottom: 3px solid var(--border-red);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.15rem;
+        }
+
+        /* Tarjeta de Reflexión */
+        .card-reflection {
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #0f172a;
+            font-weight: 600;
+            word-wrap: break-word;
+            position: relative;
+            border-style: solid;
+            border-width: 1px 1px 1px 6px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card-reflection:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+        }
+
+        .card-reflection::before {
+            content: "“";
+            font-size: 2.2rem;
+            opacity: 0.35;
+            position: absolute;
+            top: 2px;
+            left: 6px;
+            line-height: 1;
+        }
+
+        .card-reflection p {
+            position: relative;
+            z-index: 1;
+            padding-left: 8px;
+        }
+
+        /* Variaciones de colores para tarjetas */
+        .card-color-0 { background-color: #fff5f5; border-color: #feb2b2; border-left-color: #c53030; }
+        .card-color-0::before { color: #c53030; }
+
+        .card-color-1 { background-color: #f0f9ff; border-color: #bae6fd; border-left-color: #0284c7; }
+        .card-color-1::before { color: #0284c7; }
+
+        .card-color-2 { background-color: #f0fdf4; border-color: #bbf7d0; border-left-color: #15803d; }
+        .card-color-2::before { color: #15803d; }
+
+        .card-color-3 { background-color: #fffbeb; border-color: #fef08a; border-left-color: #d97706; }
+        .card-color-3::before { color: #d97706; }
+
+        .card-color-4 { background-color: #faf5ff; border-color: #e9d5ff; border-left-color: #7e22ce; }
+        .card-color-4::before { color: #7e22ce; }
+
+        .card-color-5 { background-color: #f0fdfa; border-color: #99f6e4; border-left-color: #0d9488; }
+        .card-color-5::before { color: #0d9488; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: var(--radius-main);
+            border: 2px dashed #cbd5e1;
+            color: #334155;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: var(--primary-red);
+            margin-bottom: 14px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        /* Notificaciones */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .toast-success { background-color: #15803d; }
+        .toast-warning { background-color: #d97706; }
+        .toast-danger { background-color: #b91c1c; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modales */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.75);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-main);
+            max-width: 650px;
+            width: 100%;
+            padding: 28px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            border: 3px solid var(--primary-red);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-red);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-dark);
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .modal-close:hover {
+            color: var(--primary-red);
+        }
+
+        .modal-body {
+            color: #0f172a;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .modal-body ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .modal-body li {
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        /* Overlay Modo Proyección */
+        .projection-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #f8fafc;
+            z-index: 3000;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .projection-overlay.active {
+            display: flex;
+        }
+
+        .projection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 2px solid var(--border-red);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .projection-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary-dark);
+        }
+
+        .projection-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .projection-nav-btn {
+            background: white;
+            border: 3px solid var(--primary-red);
+            color: var(--primary-red);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-md);
+            flex-shrink: 0;
+        }
+
+        .projection-nav-btn:hover:not(:disabled) {
+            background: var(--primary-red);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .projection-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: #cbd5e1;
+            color: #cbd5e1;
+        }
+
+        .projection-column-container {
+            flex: 1;
+            height: 100%;
+            background: white;
+            border-radius: 16px;
+            border: 3px solid var(--primary-red);
+            padding: 24px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .projection-card {
+            border-radius: 10px;
+            padding: 22px 26px;
+            font-size: 1.45rem;
+            line-height: 1.6;
+            color: #0f172a;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border-style: solid;
+            border-width: 1px 1px 1px 6px;
+        }
+
+        /* Panel de Administración */
+        .admin-card {
+            background: white;
+            border-radius: var(--radius-main);
+            border: 2px solid var(--border-red);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+        }
+
+        .admin-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-red);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.2);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        pre.code-box {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 18px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            border: 2px solid #334155;
+            font-weight: 600;
+        }
+
+        /* Pie de página */
+        footer {
+            background: white;
+            border-top: 2px solid var(--border-red);
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            font-size: 1.05rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        footer a {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .app-header {
+                background: none !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                padding: 10px 0 !important;
+                border-bottom: 2px solid #000 !important;
+            }
+            .app-header h1 {
+                font-size: 1.6rem !important;
+                color: #000 !important;
+                text-shadow: none !important;
+            }
+            .app-header p {
+                color: #333 !important;
+            }
+            .nav-tabs, .toolbar, footer, .toast-container, .modal-backdrop, .projection-overlay, #tab-admin {
+                display: none !important;
+            }
+            #tab-usuarios {
+                display: block !important;
+            }
+            .main-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .board-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important;
+            }
+            .board-column {
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+            .card-reflection {
+                box-shadow: none !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar-group {
+                justify-content: center;
+            }
+            .projection-card {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado de la aplicación -->
+    <header class="app-header">
+        <h1>DINÁMICA: ¿PARA QUÉ SIRVEN LOS EXÁMENES?</h1>
+        <p>Reflexionamos en directo sobre la utilidad y el propósito de las evaluaciones</p>
+    </header>
+
+    <!-- Navegación por Pestañas -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="cambiarTab('usuarios')">
+            <i class="fa-solid fa-users"></i> Pizarra de Usuarios
+        </button>
+        <button class="tab-btn" onclick="solicitarAccesoAdmin()">
+            <i class="fa-solid fa-lock"></i> Administración
+        </button>
+    </nav>
+
+    <!-- Contenedor Principal -->
+    <main class="main-container">
+
+        <!-- PESTAÑA USUARIOS -->
+        <section id="tab-usuarios" class="tab-content active">
+            <!-- Barra de herramientas de usuarios -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button class="btn btn-primary" onclick="cargarDatosDesdeSheet()">
+                        <i class="fa-solid fa-rotate-right"></i> Cargar / Refrescar
+                    </button>
+                    <button class="btn btn-info" onclick="abrirModalInstrucciones()">
+                        <i class="fa-solid fa-circle-info"></i> Instrucciones
+                    </button>
+                    <button class="btn btn-secondary" onclick="iniciarModoProyeccion()">
+                        <i class="fa-solid fa-expand"></i> Modo Proyección
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <label for="selectCols" style="font-weight: 700;">Columnas:</label>
+                    <select id="selectCols" class="select-control" onchange="cambiarColumnas(this.value)">
+                        <option value="1">1 Columna</option>
+                        <option value="2">2 Columnas</option>
+                        <option value="3" selected>3 Columnas</option>
+                        <option value="4">4 Columnas</option>
+                    </select>
+
+                    <span class="counter-badge" id="totalCounter">0 Respuestas</span>
+                </div>
+            </div>
+
+            <!-- Pizarra Digital de Reflexiones -->
+            <div id="pizarraGrid" class="board-grid">
+                <!-- Se genera dinámicamente mediante JS -->
+            </div>
+        </section>
+
+        <!-- PESTAÑA ADMINISTRACIÓN -->
+        <section id="tab-admin" class="tab-content">
+            <div class="admin-card">
+                <h2 class="admin-title">
+                    <i class="fa-solid fa-gears"></i> Panel de Control de Administración
+                </h2>
+
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-link"></i> Enlace al Formulario de Google</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="formUrlInput" class="form-control" readonly>
+                                <a id="btnAbrirForm" href="#" target="_blank" class="btn btn-primary">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-database"></i> Enlace a la Base de Datos (Google Sheet)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="dbUrlInput" class="form-control" readonly>
+                                <a id="btnAbrirDb" href="#" target="_blank" class="btn btn-secondary">
+                                    <i class="fa-solid fa-table"></i> Abrir Sheet
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-file-export"></i> Opciones de Exportación</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                                <button class="btn btn-success" onclick="exportarExcel()">
+                                    <i class="fa-solid fa-file-excel"></i> Exportar Reflexiones a Excel (.xlsx)
+                                </button>
+                                <button class="btn btn-primary" onclick="exportarPDF()">
+                                    <i class="fa-solid fa-file-pdf"></i> Imprimir / Guardar en PDF (Reflexiones)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Conexión Google Apps Script -->
+            <div class="admin-card">
+                <h2 class="admin-title">
+                    <i class="fa-solid fa-plug"></i> Configuración de Conexión Google Apps Script
+                </h2>
+
+                <div class="form-group">
+                    <label for="scriptUrlInput">URL del Web App de Apps Script (terminada en /exec):</label>
+                    <input type="text" id="scriptUrlInput" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <button class="btn btn-primary" onclick="guardarUrlScript()">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar y Probar Conexión
+                </button>
+
+                <div style="margin-top: 24px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 8px;">
+                        Código Apps Script para pegar en tu Google Sheet (Extensiones > Apps Script):
+                    </label>
+                    <pre class="code-box"><code>function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var respuestas = [];
+  
+  // Salta la fila 0 de encabezados y lee únicamente la Columna 2 (índice 1)
+  for (var i = 1; i < data.length; i++) {
+    var textoReflexion = data[i][1];
+    if (textoReflexion && textoReflexion.toString().trim() !== "") {
+      respuestas.push(textoReflexion.toString().trim());
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(respuestas))
+    .setMimeType(ContentService.MimeType.JSON);
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de Instrucciones -->
+    <div id="modalInstrucciones" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-lightbulb"></i> Instrucciones de la Dinámica</h2>
+                <button class="modal-close" onclick="cerrarModalInstrucciones()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Bienvenido/a a la actividad compartida <strong>"¿Para qué sirven los exámenes?"</strong>.</p>
+                <ol>
+                    <li>Abre el formulario enviado por el docente o moderador.</li>
+                    <li>Escribe tu respuesta sincera sobre cuál consideras que es la función principal de los exámenes.</li>
+                    <li>Envía tu respuesta. Esta aparecerá automáticamente organizada en las columnas de esta pantalla.</li>
+                    <li>Utiliza el botón <strong>"Cargar / Refrescar"</strong> para traer las nuevas aportaciones registradas.</li>
+                    <li>Utiliza el <strong>"Modo Proyección"</strong> para visualizar en pantalla grande las opiniones por bloques de columnas.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Modo Proyección -->
+    <div id="projectionOverlay" class="projection-overlay">
+        <div class="projection-header">
+            <div class="projection-title">
+                <i class="fa-solid fa-chalkboard"></i> Proyección - Columna <span id="projColNum">1</span> de <span id="projTotalCols">1</span>
+            </div>
+            <button class="btn btn-primary" onclick="cerrarModoProyeccion()">
+                <i class="fa-solid fa-xmark"></i> Salir de Proyección
+            </button>
+        </div>
+
+        <div class="projection-body">
+            <button id="btnProjPrev" class="projection-nav-btn" onclick="navegarProyeccion(-1)">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div id="projColumnContainer" class="projection-column-container">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <button id="btnProjNext" class="projection-nav-btn" onclick="navegarProyeccion(1)">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor para notificaciones flotantes -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Pie de página -->
+    <footer>
+        Elaborada por <a href="https://blogsaverroes.juntadeandalucia.es/ellocodelamochila" target="_blank">El loco de la mochila en 2026</a>
+    </footer>
+
+    <script>
+        // =========================================================================
+        // 📌 URL DE GOOGLE APPS SCRIPT "GRABADA A FUEGO"
+        // Pega aquí entre las comillas la URL de tu Web App que termina en /exec
+        // =========================================================================
+        const URL_APPS_SCRIPT_FIJA = "https://script.google.com/macros/s/AKfycbwitf5xnNqYcs3QCfnB3cGgbvGzCNHe99yHhtp0P_2EK8XOqKhMfDRgNkBu0h9k-bLLvw/exec";
+
+        // Estado inicial de la aplicación
+        let state = {
+            scriptUrl: (URL_APPS_SCRIPT_FIJA !== "PEGA_AQUÍ_TU_URL_DE_APPS_SCRIPT" && URL_APPS_SCRIPT_FIJA.trim() !== "") 
+                ? URL_APPS_SCRIPT_FIJA 
+                : (localStorage.getItem('exam_script_url') || ""),
+            formUrl: "https://docs.google.com/forms/d/e/1FAIpQLScNQFOYFikwItoYf1ki0FTQ3zgh95G3g3iTc1F0zm1ihQ135w/viewform?usp=header",
+            dbUrl: "https://docs.google.com/spreadsheets/d/1wMRuXNrbqnbf0BlkweHmRi-_f52CgVnO9r9Rt6eIUjg/edit?usp=sharing",
+            reflexiones: [],
+            numColumnas: 3,
+            projectionColIndex: 0
+        };
+
+        // Inicializar aplicación al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('formUrlInput').value = state.formUrl;
+            document.getElementById('btnAbrirForm').href = state.formUrl;
+            document.getElementById('dbUrlInput').value = state.dbUrl;
+            document.getElementById('btnAbrirDb').href = state.dbUrl;
+
+            const scriptInput = document.getElementById('scriptUrlInput');
+            if (scriptInput) scriptInput.value = state.scriptUrl;
+
+            // Intentar cargar datos si existe URL
+            if (state.scriptUrl) {
+                cargarDatosDesdeSheet();
+            } else {
+                renderizarPizarra();
+            }
+
+            // Atajos de teclado para modo proyección (Flechas Izquierda / Derecha)
+            window.addEventListener('keydown', (e) => {
+                const overlay = document.getElementById('projectionOverlay');
+                if (overlay && overlay.classList.contains('active')) {
+                    if (e.key === 'ArrowLeft') navegarProyeccion(-1);
+                    if (e.key === 'ArrowRight') navegarProyeccion(1);
+                    if (e.key === 'Escape') cerrarModoProyeccion();
+                }
+            });
+        });
+
+        // Cargar datos con manejo de errores
+        async function cargarDatosDesdeSheet() {
+            if (!state.scriptUrl || state.scriptUrl.trim() === "" || state.scriptUrl === "PEGA_AQUÍ_TU_URL_DE_APPS_SCRIPT") {
+                mostrarNotificacion("Configura la URL de Google Apps Script en la pestaña Administración.", "warning");
+                return;
+            }
+
+            try {
+                const response = await fetch(state.scriptUrl);
+                const text = await response.text();
+
+                if (text.trim().startsWith('<')) {
+                    throw new Error("La URL devolvió HTML. Verifica haber publicado en Apps Script con acceso 'Cualquiera' (Anyone).");
+                }
+
+                const data = JSON.parse(text);
+
+                if (Array.isArray(data)) {
+                    state.reflexiones = data;
+                    renderizarPizarra();
+                    mostrarNotificacion(`Se cargaron ${data.length} reflexiones correctamente.`, "success");
+                } else {
+                    throw new Error("El formato devuelto no es una lista válida de datos.");
+                }
+            } catch (err) {
+                console.error("Error al cargar datos:", err);
+                mostrarNotificacion(`Error: ${err.message}`, "danger");
+            }
+        }
+
+        // Renderizado de la Pizarra Digital con tarjetas de colores pastel diferenciados
+        function renderizarPizarra() {
+            const container = document.getElementById('pizarraGrid');
+            const totalCounter = document.getElementById('totalCounter');
+            
+            totalCounter.textContent = `${state.reflexiones.length} Respuestas`;
+
+            if (!state.reflexiones || state.reflexiones.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-comments"></i>
+                        <h3>Aún no se han recibido reflexiones</h3>
+                        <p>Las respuestas enviadas a través del formulario de Google aparecerán aquí en directo.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Distribuir datos equitativamente entre las columnas elegidas
+            const numCols = parseInt(state.numColumnas);
+            const columnasData = Array.from({ length: numCols }, () => []);
+
+            state.reflexiones.forEach((ref, index) => {
+                const colIdx = index % numCols;
+                columnasData[colIdx].push({ texto: ref, originalIndex: index + 1 });
+            });
+
+            container.innerHTML = columnasData.map((col, idx) => `
+                <div class="board-column">
+                    <div class="column-header">
+                        <span><i class="fa-solid fa-list-check"></i> Columna ${idx + 1}</span>
+                        <span style="font-size: 0.9rem; font-weight: 700; color: #64748b;">${col.length} ítems</span>
+                    </div>
+                    ${col.map(item => {
+                        // Asignación rotativa de esquema de color (0 a 5)
+                        const colorClass = `card-color-${(item.originalIndex - 1) % 6}`;
+                        return `
+                            <div class="card-reflection ${colorClass}">
+                                <p>${escapeHTML(item.texto)}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Cambiar número de columnas
+        function cambiarColumnas(val) {
+            state.numColumnas = parseInt(val);
+            renderizarPizarra();
+        }
+
+        // Pestañas
+        function cambiarTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'usuarios') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-usuarios').classList.add('active');
+            } else if (tabName === 'admin') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-admin').classList.add('active');
+            }
+        }
+
+        function solicitarAccesoAdmin() {
+            const pass = prompt("Introduce la clave de acceso de administración:");
+            if (pass === "1717") {
+                cambiarTab('admin');
+                mostrarNotificacion("Acceso de administración concedido.", "success");
+            } else if (pass !== null) {
+                mostrarNotificacion("Clave incorrecta. Acceso denegado.", "danger");
+            }
+        }
+
+        // Modales e Instrucciones
+        function abrirModalInstrucciones() {
+            document.getElementById('modalInstrucciones').classList.add('active');
+        }
+
+        function cerrarModalInstrucciones() {
+            document.getElementById('modalInstrucciones').classList.remove('active');
+        }
+
+        // Modo Proyección
+        function iniciarModoProyeccion() {
+            if (!state.reflexiones || state.reflexiones.length === 0) {
+                mostrarNotificacion("No hay datos para proyectar.", "warning");
+                return;
+            }
+            state.projectionColIndex = 0;
+            actualizarProyeccion();
+            document.getElementById('projectionOverlay').classList.add('active');
+        }
+
+        function cerrarModoProyeccion() {
+            document.getElementById('projectionOverlay').classList.remove('active');
+        }
+
+        function navegarProyeccion(dir) {
+            const numCols = parseInt(state.numColumnas);
+            const newIndex = state.projectionColIndex + dir;
+
+            if (newIndex >= 0 && newIndex < numCols) {
+                state.projectionColIndex = newIndex;
+                actualizarProyeccion();
+            }
+        }
+
+        function actualizarProyeccion() {
+            const numCols = parseInt(state.numColumnas);
+            document.getElementById('projColNum').textContent = state.projectionColIndex + 1;
+            document.getElementById('projTotalCols').textContent = numCols;
+
+            document.getElementById('btnProjPrev').disabled = (state.projectionColIndex === 0);
+            document.getElementById('btnProjNext').disabled = (state.projectionColIndex === numCols - 1);
+
+            const items = state.reflexiones.filter((_, idx) => (idx % numCols) === state.projectionColIndex);
+            const container = document.getElementById('projColumnContainer');
+
+            if (items.length === 0) {
+                container.innerHTML = `<p style="font-size:1.3rem; font-weight:700; color:#64748b;">Esta columna no contiene respuestas.</p>`;
+            } else {
+                container.innerHTML = items.map((texto, i) => {
+                    const colorClass = `card-color-${i % 6}`;
+                    return `
+                        <div class="projection-card ${colorClass}">
+                            <p>${escapeHTML(texto)}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Exportación a Excel
+        function exportarExcel() {
+            if (!state.reflexiones || state.reflexiones.length === 0) {
+                mostrarNotificacion("No hay datos para exportar a Excel.", "warning");
+                return;
+            }
+
+            const dataToExport = state.reflexiones.map((ref, i) => ({
+                "Nº": i + 1,
+                "¿PARA QUÉ SIRVEN LOS EXÁMENES?": ref
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Reflexiones");
+            XLSX.writeFile(workbook, "Reflexiones_Para_Que_Sirven_Los_Examenes.xlsx");
+
+            mostrarNotificacion("Archivo Excel exportado con éxito.", "success");
+        }
+
+        // Exportación a PDF enfocada únicamente en los comentarios de los usuarios
+        function exportarPDF() {
+            if (!state.reflexiones || state.reflexiones.length === 0) {
+                mostrarNotificacion("No hay comentarios de usuarios para exportar a PDF.", "warning");
+                return;
+            }
+
+            // Cambiar dinámicamente a la pestaña de usuarios
+            cambiarTab('usuarios');
+
+            // Abrir diálogo de impresión
+            setTimeout(() => {
+                window.print();
+            }, 250);
+        }
+
+        // Configuración de URL de Apps Script desde Administración
+        function guardarUrlScript() {
+            const val = document.getElementById('scriptUrlInput').value.trim();
+            if (!val) {
+                mostrarNotificacion("Introduce una URL válida.", "warning");
+                return;
+            }
+
+            state.scriptUrl = val;
+            localStorage.setItem('exam_script_url', val);
+            mostrarNotificacion("URL guardada. Probando conexión...", "success");
+            cargarDatosDesdeSheet();
+        }
+
+        // Notificaciones Flotantes
+        function mostrarNotificacion(msg, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            if (type === 'danger') icon = 'fa-exclamation-triangle';
+            if (type === 'warning') icon = 'fa-exclamation-circle';
+
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        // Prevención de inyección de código HTML
+        function escapeHTML(str) {
+            return String(str).replace(/[&<>"']/g, function (m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
